@@ -1,5 +1,6 @@
 ﻿using MathNet.Numerics.Random;
 using SourceGeneration.ExcelUtilities;
+using SourceGeneration.Reflection;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Drawing;
@@ -44,7 +45,7 @@ ExcelUtility.Save("test-clr.xlsx", models, new ExcelSaveOptions
     AutoSizeRow = true,
 });
 
-//[SourceReflection]
+[SourceReflection]
 public class TestDataModel
 {
     public bool BoolValue { get; set; }
