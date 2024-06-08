@@ -2,9 +2,11 @@
 using SourceGeneration.Reflection;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace SourceGeneration.ExcelUtilities;
@@ -49,24 +51,46 @@ public class ExcelOptions
         return UnknownTypeConverter;
     }
 
+    private Dictionary<Type, ExcelColumnBase[]> _columns = [];
+
     internal virtual IReadOnlyList<ExcelColumnBase> GetColumns(
 #if NET5_0_OR_GREATER
     [DynamicallyAccessedMembers(Dynamically.DefaultAccessMembers)]
 #endif
         Type type)
     {
+        if (_columns.TryGetValue(type, out var columns))
+        {
+            return columns;
+        }
+
         var typeInfo = SourceReflector.GetType(type, true);
         var members = typeInfo?.GetFieldsAndProperties()?.Where(x =>
             x.IsStatic == false &&
             x.MemberInfo.GetCustomAttribute<NotMappedAttribute>() == null &&
             x.Accessibility == SourceAccessibility.Public)?.ToList() ?? [];
 
-        ExcelColumnBase[] columns = new ExcelColumnBase[members.Count];
+
+        columns = new ExcelColumnBase[members.Count];
         for (int i = 0; i < members.Count; i++)
         {
-            columns[i] = new ExcelColumn(this, members[i]);
+            var memberInfo = members[i];
+            var display = memberInfo.MemberInfo.GetCustomAttribute<DisplayAttribute>();
+            var columnOptions = new ExcelColumnOptions
+            {
+                Title = display?.GetName() ?? memberInfo.Name,
+                Order = display?.GetOrder() ?? 0,
+                MemberInfo = memberInfo,
+                IsTimestamp = memberInfo.MemberInfo.GetCustomAttribute<TimestampAttribute>() != null,
+                Format = memberInfo.MemberInfo.GetCustomAttribute<DisplayFormatAttribute>()?.DataFormatString,
+            };
+
+            columns[i] = new ExcelColumn(this, columnOptions);
         }
 
-        return [.. columns.OrderBy(x => x.Order)];
+        columns = [.. columns.OrderBy(x => x.Order)];
+        _columns.Add(type, columns);
+
+        return columns;
     }
 }
