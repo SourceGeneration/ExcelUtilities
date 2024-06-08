@@ -4,6 +4,8 @@ using SourceGeneration.Reflection;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Drawing;
+using System.Reflection;
+
 
 TestDataModel[] models = new TestDataModel[10];
 
@@ -40,13 +42,22 @@ for (int i = 0; i < 10; i++)
     };
 }
 
+var options = new ExcelSaveOptions<TestDataModel>
+{
+    AutoSizeRow = true,
+};
+options.Column(x => x.BoolValue, "B", "Yes:No");
+options.Column(x => x.Timestamp1, "C", null, true);
+
+ExcelUtility.Save("test-clr2.xlsx", models, options);
+
 ExcelUtility.Save("test-clr.xlsx", models, new ExcelSaveOptions
 {
     AutoSizeRow = true,
 });
 
 [SourceReflection]
-public class TestDataModel
+public class TestDataModel : IComparable
 {
     public bool BoolValue { get; set; }
 
@@ -88,6 +99,11 @@ public class TestDataModel
     public int?[] IntegerArray { get; set; }
 
     public DateTime?[] DateTimeArray { get; set; }
+
+    public int CompareTo(object? obj)
+    {
+        throw new NotImplementedException();
+    }
 }
 
 public enum TestEnum
