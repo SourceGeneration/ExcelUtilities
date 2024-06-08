@@ -12,17 +12,35 @@ using System.Reflection;
 
 namespace SourceGeneration.ExcelUtilities;
 
+public class ExcelColumnOptions
+{
+    public ISourceFieldOrPropertyInfo MemberInfo { get; set; } = null!;
+    public string? Title { get; set; }
+    public int Order { get; set; }
+    public string? Format { get; set; }
+    public bool IsTimestamp { get; set; }
+}
+
 public class ExcelColumn : ExcelColumnBase
 {
     private readonly ColumnTypeConverter _converter;
     private readonly ISourceFieldOrPropertyInfo _memberInfo;
     private readonly Type _valueType;
     private readonly bool _timestamp;
+    private readonly string? _format;
     private readonly Dictionary<object, string> _enumMembers = [];
+    private readonly string? _trueValue;
+    private readonly string? _falseValue;
 
-    public ExcelColumn(ExcelOptions options, ISourceFieldOrPropertyInfo memberInfo)
+    public ExcelColumn(ExcelOptions options, ExcelColumnOptions columnOptions)
     {
-        _memberInfo = memberInfo;
+        _memberInfo = columnOptions.MemberInfo;
+
+        _timestamp = columnOptions.IsTimestamp;
+
+        Title = columnOptions.Title;
+        Order = columnOptions.Order;
+
 
         if (_memberInfo.MemberType.IsNullableType())
             _valueType = _memberInfo.MemberType.GenericTypeArguments[0];
@@ -31,26 +49,35 @@ public class ExcelColumn : ExcelColumnBase
 
         _converter = options.GetConverter(_valueType);
 
-        ValueType = _converter.GetValueType(_valueType);
-
-        var displayAttribute = _memberInfo.MemberInfo.GetCustomAttribute<DisplayAttribute>();
-
-        _timestamp = _memberInfo.MemberInfo.GetCustomAttribute<TimestampAttribute>() != null;
-        if (_timestamp && _valueType == typeof(long))
+        if (_timestamp)
         {
-            ValueType = ExcelColumnDataType.Integer;
+            DataType = ExcelColumnDataType.Integer;
+        }
+        else
+        {
+            DataType = _converter.GetValueType(_valueType);
         }
 
-        Name = _memberInfo.Name;
-        DisplayName = displayAttribute?.GetName() ?? Name;
-        Order = displayAttribute?.GetOrder() ?? 0;
-
-        if (memberInfo.MemberType.IsEnum)
+        if (DataType == ExcelColumnDataType.Boolean)
         {
-            foreach (var member in SourceReflector.GetRequiredType(memberInfo.MemberType, true).DeclaredFields.Where(x => x.IsStatic))
+            _format = columnOptions.Format;
+            if (_format != null)
+            {
+                var index = _format.IndexOf(':');
+                if (index >= 0)
+                {
+                    _trueValue = _format.Substring(0, index);
+                    if (index < _format.Length - 1)
+                        _falseValue = _format.Substring(index + 1);
+                }
+            }
+        }
+        else if (DataType == ExcelColumnDataType.Enum)
+        {
+            foreach (var member in SourceReflector.GetRequiredType(_valueType, true).DeclaredFields.Where(x => x.IsStatic))
             {
                 var key = member.GetValue(null)!;
-                var value = 
+                var value =
                     member.FieldInfo.GetCustomAttribute<DisplayAttribute>()?.Name ??
                     member.FieldInfo.GetCustomAttribute<DescriptionAttribute>()?.Description ??
                     key.ToString();
@@ -64,7 +91,7 @@ public class ExcelColumn : ExcelColumnBase
         if (cell == null)
             return;
 
-        if (!cell.TryGetValue(ValueType, out object? value))
+        if (!cell.TryGetValue(DataType, out object? value))
             return;
 
         if (value == null)
@@ -95,7 +122,7 @@ public class ExcelColumn : ExcelColumnBase
             return;
         }
 
-        switch (ValueType)
+        switch (DataType)
         {
             case ExcelColumnDataType.Boolean:
                 WriteBooleanValue(cell, value, styles);
@@ -150,7 +177,7 @@ public class ExcelColumn : ExcelColumnBase
     {
         object? value = _memberInfo.GetValue(obj);
 
-        if (ValueType == ExcelColumnDataType.Array)
+        if (DataType == ExcelColumnDataType.Array)
         {
             if (value is IEnumerable enumerable)
             {
@@ -168,10 +195,17 @@ public class ExcelColumn : ExcelColumnBase
         cell.SetCellType(CellType.String);
         cell.CellStyle = styles.CenterCellStyle;
 
-        if (System.Globalization.CultureInfo.CurrentUICulture.Name == "zh-CN")
-            cell.SetCellValue((bool)value ? "是" : "否");
+        if (_format != null)
+        {
+            cell.SetCellValue((bool)value ? _trueValue : _falseValue);
+        }
         else
-            cell.SetCellValue(value);
+        {
+            if (System.Globalization.CultureInfo.CurrentUICulture.Name == "zh-CN")
+                cell.SetCellValue((bool)value ? "是" : "否");
+            else
+                cell.SetCellValue(value);
+        }
     }
 
     protected virtual void WriteStringValue(ICell cell, object value, ExcelRowStyles styles)
@@ -204,7 +238,7 @@ public class ExcelColumn : ExcelColumnBase
         cell.SetCellType(CellType.String);
         cell.CellStyle = styles.TextCellStyle;
         _enumMembers.TryGetValue(value, out string? cellValue);
-        cell.SetCellValue(cellValue ??value.ToString());
+        cell.SetCellValue(cellValue ?? value.ToString());
     }
 
     protected virtual void WriteDateTimeValue(ICell cell, object value, ExcelRowStyles styles)

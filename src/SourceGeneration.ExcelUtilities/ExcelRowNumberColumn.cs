@@ -6,12 +6,11 @@ namespace SourceGeneration.ExcelUtilities;
 public sealed class ExcelRowNumberColumn : ExcelColumnBase
 {
     /// <inheritdoc/>
-    public ExcelRowNumberColumn(string name)
+    public ExcelRowNumberColumn(string title)
     {
-        Name = name;
-        DisplayName = name;
+        Title = title;
         Order = 0;
-        ValueType = ExcelColumnDataType.Integer;
+        DataType = ExcelColumnDataType.Integer;
     }
 
     /// <inheritdoc/>
