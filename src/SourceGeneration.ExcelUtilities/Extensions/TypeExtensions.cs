@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace SourceGeneration.ExcelUtilities;
 
-internal static class TypeExtensions
+public static class TypeExtensions
 {
     private static readonly Type NullableType = typeof(Nullable<>);
     private static readonly Type EnumerableGenericInterfaceType = typeof(IEnumerable<>);

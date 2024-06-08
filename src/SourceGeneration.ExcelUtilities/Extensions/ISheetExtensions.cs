@@ -134,7 +134,7 @@ internal static class ISheetExtensions
         for (int colIndex = 0; colIndex < columns.Count; colIndex++)
         {
             ExcelColumnBase? column = columns[colIndex];
-            if (column.ValueType == ExcelColumnDataType.String)
+            if (column.DataType == ExcelColumnDataType.String)
                 sheet.SetDefaultColumnStyle(colIndex, styles.DataStyleTable.DefaultTextCellStyle);
         }
 
@@ -147,15 +147,15 @@ internal static class ISheetExtensions
             {
                 cell.CellStyle = styles.HeaderStyleTable.AlignCenterStyle;
             }
-            else if (column.ValueType == ExcelColumnDataType.Boolean ||
-                column.ValueType == ExcelColumnDataType.Date ||
-                column.ValueType == ExcelColumnDataType.Time ||
-                column.ValueType == ExcelColumnDataType.DateTime ||
-                column.ValueType == ExcelColumnDataType.Enum)
+            else if (column.DataType == ExcelColumnDataType.Boolean ||
+                column.DataType == ExcelColumnDataType.Date ||
+                column.DataType == ExcelColumnDataType.Time ||
+                column.DataType == ExcelColumnDataType.DateTime ||
+                column.DataType == ExcelColumnDataType.Enum)
             {
                 cell.CellStyle = styles.HeaderStyleTable.AlignCenterStyle;
             }
-            else if (column.ValueType == ExcelColumnDataType.Integer || column.ValueType == ExcelColumnDataType.Number)
+            else if (column.DataType == ExcelColumnDataType.Integer || column.DataType == ExcelColumnDataType.Number)
             {
                 cell.CellStyle = styles.HeaderStyleTable.AlignRightStyle;
             }
@@ -164,7 +164,7 @@ internal static class ISheetExtensions
                 cell.CellStyle = styles.HeaderStyleTable.AlignLeftStyle;
             }
 
-            cell.SetCellValue(column.DisplayName);
+            cell.SetCellValue(column.Title);
             i++;
         }
     }
