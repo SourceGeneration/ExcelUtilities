@@ -1,4 +1,5 @@
-﻿using NPOI.SS.UserModel;
+﻿using EnumsNET;
+using NPOI.SS.UserModel;
 using SourceGeneration.ExcelUtilities.Converters;
 using SourceGeneration.Reflection;
 using System;
@@ -81,7 +82,7 @@ public class ExcelColumn : ExcelColumnBase
                     member.FieldInfo.GetCustomAttribute<DisplayAttribute>()?.Name ??
                     member.FieldInfo.GetCustomAttribute<DescriptionAttribute>()?.Description ??
                     key.ToString();
-                _enumMembers.Add(key, value!);
+                _enumMembers.Add(Enum.ToObject(_valueType, key!), value!);
             }
         }
     }
