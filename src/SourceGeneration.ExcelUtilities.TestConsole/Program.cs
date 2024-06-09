@@ -106,8 +106,9 @@ public class TestDataModel : IComparable
     }
 }
 
+[SourceReflection]
 public enum TestEnum
 {
-    [Display(Name = "选项A")] A,
-    [Display(Name = "选项B")] B,
+    [Description("选项A")] A,
+    [Description("选项B")] B,
 }
