@@ -70,7 +70,6 @@ public class ExcelOptions
             x.MemberInfo.GetCustomAttribute<NotMappedAttribute>() == null &&
             x.Accessibility == SourceAccessibility.Public)?.ToList() ?? [];
 
-
         columns = new ExcelColumnBase[members.Count];
         for (int i = 0; i < members.Count; i++)
         {
@@ -81,7 +80,8 @@ public class ExcelOptions
                 Title = display?.GetName() ?? memberInfo.Name,
                 Order = display?.GetOrder() ?? 0,
                 MemberInfo = memberInfo,
-                IsTimestamp = memberInfo.MemberInfo.GetCustomAttribute<TimestampAttribute>() != null,
+                IsTimestamp = memberInfo.MemberInfo.GetCustomAttribute<TimestampAttribute>() != null ||
+                              memberInfo.MemberInfo.GetCustomAttribute<DataTypeAttribute>()?.DataType == DataType.DateTime,
                 Format = memberInfo.MemberInfo.GetCustomAttribute<DisplayFormatAttribute>()?.DataFormatString,
             };
 
