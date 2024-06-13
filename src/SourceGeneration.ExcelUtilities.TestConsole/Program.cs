@@ -90,7 +90,7 @@ public class TestDataModel : IComparable
     [Display(Name = "连接")] public Uri Uri { get; set; }
 
     [Timestamp] public long Timestamp1 { get; set; }
-    [Timestamp] public long Timestamp2 { get; set; }
+    [DataType(DataType.DateTime)] public long Timestamp2 { get; set; }
     public TestEnum EnumValue { get; set; }
 
     public string String { get; set; }
