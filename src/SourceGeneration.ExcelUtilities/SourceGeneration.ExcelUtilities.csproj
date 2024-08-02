@@ -5,7 +5,7 @@
 		<LangVersion>12.0</LangVersion>
 		<Nullable>enable</Nullable>
 
-		<Version>1.0.0-beta2.240731.1</Version>
+		<Version>1.0.0-beta2.240802.1</Version>
 		<Authors>SourceGeneration</Authors>
 		<Description>Excel Utilities</Description>
 
@@ -22,6 +22,7 @@
 		<PackageReference Include="NPOI" Version="2.7.1" />
 		<PackageReference Include="SixLabors.ImageSharp" Version="2.1.9" />
 		<PackageReference Include="SourceGeneration.Reflection" Version="1.0.0-beta2.240523.1" />
+		<PackageReference Include="System.Formats.Asn1" Version="6.0.1" />
 	</ItemGroup>
 
 	<ItemGroup>
