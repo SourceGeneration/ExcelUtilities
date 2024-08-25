@@ -6,7 +6,6 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 
 namespace SourceGeneration.ExcelUtilities;
@@ -68,7 +67,10 @@ public class ExcelOptions
         var members = typeInfo?.GetFieldsAndProperties()?.Where(x =>
             x.IsStatic == false &&
             x.MemberInfo.GetCustomAttribute<NotMappedAttribute>() == null &&
-            x.Accessibility == SourceAccessibility.Public)?.ToList() ?? [];
+            x.MemberInfo.GetCustomAttribute<ExcelIgnoreAttribute>() == null &&
+            (x.Accessibility == SourceAccessibility.Public || 
+            x.Accessibility == SourceAccessibility.Internal || 
+            x.Accessibility == SourceAccessibility.ProtectedOrInternal))?.ToList() ?? [];
 
         columns = new ExcelColumnBase[members.Count];
         for (int i = 0; i < members.Count; i++)
