@@ -11,6 +11,15 @@ namespace SourceGeneration.ExcelUtilities;
 
 public static partial class ExcelUtility
 {
+    public static void Save(string path, IEnumerable<object> rows,
+#if NET5_0_OR_GREATER
+    [DynamicallyAccessedMembers(Dynamically.DefaultAccessMembers)]
+#endif
+        Type itemType, ExcelSaveOptions? options = null)
+    {
+        Save(path, ExcelConstants.DefaultSheetName, rows, itemType, options);
+    }
+
     public static void Save<
 #if NET5_0_OR_GREATER
     [DynamicallyAccessedMembers(Dynamically.DefaultAccessMembers)]
