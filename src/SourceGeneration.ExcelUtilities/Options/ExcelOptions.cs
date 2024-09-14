@@ -66,7 +66,6 @@ public class ExcelOptions
         var typeInfo = SourceReflector.GetType(type, true);
         var members = typeInfo?.GetFieldsAndProperties()?.Where(x =>
             x.IsStatic == false &&
-            x.MemberInfo.GetCustomAttribute<NotMappedAttribute>() == null &&
             x.MemberInfo.GetCustomAttribute<ExcelIgnoreAttribute>() == null &&
             (x.Accessibility == SourceAccessibility.Public || 
             x.Accessibility == SourceAccessibility.Internal || 
@@ -82,8 +81,7 @@ public class ExcelOptions
                 Title = display?.GetName() ?? memberInfo.Name,
                 Order = display?.GetOrder() ?? 0,
                 MemberInfo = memberInfo,
-                IsTimestamp = memberInfo.MemberInfo.GetCustomAttribute<TimestampAttribute>() != null ||
-                              memberInfo.MemberInfo.GetCustomAttribute<DataTypeAttribute>()?.DataType == DataType.DateTime,
+                IsTimestamp = memberInfo.MemberInfo.GetCustomAttribute<DataTypeAttribute>()?.DataType == DataType.DateTime,
                 Format = memberInfo.MemberInfo.GetCustomAttribute<DisplayFormatAttribute>()?.DataFormatString,
             };
 
