@@ -50,7 +50,7 @@ public class ExcelOptions
         return UnknownTypeConverter;
     }
 
-    private Dictionary<Type, ExcelColumnBase[]> _columns = [];
+    private readonly Dictionary<Type, ExcelColumnBase[]> _columns = [];
 
     internal virtual IReadOnlyList<ExcelColumnBase> GetColumns(
 #if NET5_0_OR_GREATER
