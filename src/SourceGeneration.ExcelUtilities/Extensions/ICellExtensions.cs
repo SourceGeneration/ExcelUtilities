@@ -122,7 +122,7 @@ internal static class ICellExtensions
     }
 
 
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
 
     public static bool TryGetDateOnlyValue(this ICell cell, out DateOnly? date)
     {
@@ -272,7 +272,7 @@ internal static class ICellExtensions
                 }
                 break;
             case ExcelColumnDataType.Date:
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
                 if (cell.TryGetDateOnlyValue(out DateOnly? date))
                 {
                     value = date;
@@ -287,7 +287,7 @@ internal static class ICellExtensions
 #endif
                 break;
             case ExcelColumnDataType.Time:
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
                 if (cell.TryGetTimeOnlyValue(out TimeOnly? time))
                 {
                     value = time;
